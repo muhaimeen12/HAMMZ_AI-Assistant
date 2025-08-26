@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Your Personal AI Helper</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">AI Assistant</h2>
+                <button class="btn btn--outline btn--sm sidebar-toggle" id="sidebarToggle">
+                    <span class="sr-only">Toggle sidebar</span>
+                    ☰
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <button class="btn btn--primary btn--full-width mb-16" id="newChatBtn">
+                    + New Chat
+                </button>
+                
+                <div class="conversation-list">
+                    <h3 class="sidebar-section-title">Recent Conversations</h3>
+                    <div class="conversation-items" id="conversationList">
+                        <div class="conversation-item active">
+                            <span class="conversation-title">Getting Started</span>
+                            <span class="conversation-time">Now</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-footer">
+                    <button class="btn btn--outline btn--sm btn--full-width" id="settingsBtn">
+                        ⚙️ Settings
+                    </button>
+                    <button class="btn btn--outline btn--sm btn--full-width mt-8" id="exportBtn">
+                        📥 Export Chat
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="chat-header">
+                <div class="header-left">
+                    <button class="btn btn--outline btn--sm mobile-sidebar-toggle" id="mobileSidebarToggle">
+                        ☰
+                    </button>
+                    <div class="model-selector">
+                        <label for="modelSelect" class="sr-only">Select AI Model</label>
+                        <select class="form-control" id="modelSelect">
+                            <option value="openai-gpt4">OpenAI GPT-4</option>
+                            <option value="openai-gpt35">OpenAI GPT-3.5</option>
+                            <option value="gemini-pro">Google Gemini Pro</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button class="btn btn--outline btn--sm" id="themeToggle">
+                        🌙
+                    </button>
+                </div>
+            </header>
+
+            <!-- Chat Area -->
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="welcome-message">
+                        <div class="welcome-content">
+                            <h1>Welcome to AI Assistant</h1>
+                            <p>Your personal AI helper powered by multiple AI models. Get started by asking me anything!</p>
+                            <div class="feature-list">
+                                <div class="feature-item">💬 Real-time conversations</div>
+                                <div class="feature-item">🤖 Multiple AI models</div>
+                                <div class="feature-item">🎨 Customizable themes</div>
+                                <div class="feature-item">📱 Mobile responsive</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="typing-indicator hidden" id="typingIndicator">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="typing-text">AI is thinking...</span>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="form-control chat-input" 
+                        id="messageInput" 
+                        placeholder="Type your message here..." 
+                        rows="1"
+                    ></textarea>
+                    <button class="btn btn--primary send-btn" id="sendBtn">
+                        <span class="send-text">Send</span>
+                        <span class="send-icon">➤</span>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    <div class="model-info">
+                        <span id="currentModel">GPT-4</span>
+                        <span class="separator">•</span>
+                        <span id="tokenCount">0 tokens</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal hidden" id="settingsModal">
+        <div class="modal-overlay" id="settingsOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close" id="closeSettingsModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4>API Configuration</h4>
+                    <div class="form-group">
+                        <label class="form-label" for="openaiKey">OpenAI API Key</label>
+                        <input type="password" class="form-control" id="openaiKey" placeholder="Enter your OpenAI API key">
+                        <small class="help-text">Required for OpenAI GPT models</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="geminiKey">Google Gemini API Key</label>
+                        <input type="password" class="form-control" id="geminiKey" placeholder="Enter your Gemini API key">
+                        <small class="help-text">Required for Google Gemini models</small>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Preferences</h4>
+                    <div class="form-group">
+                        <label class="form-label" for="maxTokens">Max Tokens</label>
+                        <input type="range" class="form-control" id="maxTokens" min="100" max="4000" value="2000">
+                        <small class="help-text">Maximum response length: <span id="maxTokensValue">2000</span></small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="temperature">Creativity Level</label>
+                        <input type="range" class="form-control" id="temperature" min="0" max="2" step="0.1" value="0.7">
+                        <small class="help-text">Higher values = more creative: <span id="temperatureValue">0.7</span></small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="streamResponse" checked> Stream responses
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="showTypingIndicator" checked> Show typing indicator
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" id="cancelSettings">Cancel</button>
+                <button class="btn btn--primary" id="saveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GitHub Pages Hosting Info Modal -->
+    <div class="modal hidden" id="hostingModal">
+        <div class="modal-overlay" id="hostingOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚀 Deploy to GitHub Pages</h3>
+                <button class="modal-close" id="closeHostingModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="hosting-steps">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Create GitHub Repository</h4>
+                            <p>Create a new public repository on GitHub (e.g., "ai-assistant")</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Upload Files</h4>
+                            <p>Upload index.html, style.css, and app.js to your repository</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Enable GitHub Pages</h4>
+                            <p>Go to Settings → Pages → Deploy from branch → Select "main" branch</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Access Your AI Assistant</h4>
+                            <p>Your app will be available at: <br><code>https://yourusername.github.io/ai-assistant</code></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hosting-note">
+                    <strong>Note:</strong> You'll need to obtain API keys from OpenAI or Google to use the AI features. The app stores these securely in your browser.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--primary" id="closeHostingInfo">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Button -->
+    <button class="info-btn" id="hostingInfoBtn" title="How to host on GitHub Pages">
+        ❓
+    </button>
+
+    <script src="app.js"></script>
+</body>
+</html>
